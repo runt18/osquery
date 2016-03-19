@@ -177,7 +177,9 @@ def gen_diff(api_old_path, api_new_path):
             column[3], column[1]))
 
 
-def gen_api(tables_path, profile={}):
+def gen_api(tables_path, profile=None):
+    if profile is None:
+        profile = {}
     blacklist = None
     blacklist_path = os.path.join(tables_path, "blacklist")
     if os.path.exists(blacklist_path):
