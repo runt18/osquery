@@ -41,7 +41,9 @@ def read_config(path):
         return json.loads(fh.read())
 
 
-def write_config(data={}, path=None):
+def write_config(data=None, path=None):
+    if data is None:
+        data = {}
     if path is None:
         path = data["options"]["config_path"]
     with open(path, "w") as fh:
