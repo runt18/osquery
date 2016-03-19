@@ -17,23 +17,23 @@ import os
 import sys
 
 def red(msg):
-    return "\033[41m\033[1;30m %s \033[0m" % str(msg)
+    return "\033[41m\033[1;30m {0!s} \033[0m".format(str(msg))
 
 
 def lightred(msg):
-    return "\033[1;31m%s\033[0m" % str(msg)
+    return "\033[1;31m{0!s}\033[0m".format(str(msg))
 
 
 def yellow(msg):
-    return "\033[43m\033[1;30m %s \033[0m" % str(msg)
+    return "\033[43m\033[1;30m {0!s} \033[0m".format(str(msg))
 
 
 def green(msg):
-    return "\033[42m\033[1;30m %s \033[0m" % str(msg)
+    return "\033[42m\033[1;30m {0!s} \033[0m".format(str(msg))
 
 
 def blue(msg):
-    return "\033[46m\033[1;30m %s \033[0m" % str(msg)
+    return "\033[46m\033[1;30m {0!s} \033[0m".format(str(msg))
 
 
 def read_config(path):
@@ -63,7 +63,7 @@ def queries_from_config(config_path):
         with open(config_path, "r") as fh:
             config = json.loads(fh.read())
     except Exception as e:
-        print ("Cannot open/parse config: %s" % str(e))
+        print ("Cannot open/parse config: {0!s}".format(str(e)))
         exit(1)
     queries = {}
     if "scheduledQueries" in config:
@@ -73,7 +73,7 @@ def queries_from_config(config_path):
         for name, details in config["schedule"].iteritems():
             queries[name] = details["query"]
     if len(queries) == 0:
-        print ("Could not find a schedule/queries in config: %s" % config_path)
+        print ("Could not find a schedule/queries in config: {0!s}".format(config_path))
         exit(0)
     return queries
 
@@ -93,12 +93,12 @@ def queries_from_tables(path, restrict):
             if spec_platform not in ["specs", platform]:
                 continue
             # Generate all tables to select from, with abandon.
-            tables.append("%s.%s" % (spec_platform, table_name))
+            tables.append("{0!s}.{1!s}".format(spec_platform, table_name))
 
     if len(restrict) > 0:
         tables = [t for t in tables if t.split(".")[1] in restrict_tables]
     queries = {}
     for table in tables:
-        queries[table] = "SELECT * FROM %s;" % table.split(".", 1)[1]
+        queries[table] = "SELECT * FROM {0!s};".format(table.split(".", 1)[1])
     return queries
 

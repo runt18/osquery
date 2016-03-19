@@ -30,10 +30,10 @@ import pexpect
 try:
     from pexpect.replwrap import REPLWrapper
 except ImportError as e:
-    print("Could not import pexpect.replwrap: %s" % (str(e)))
-    print("  Need pexpect version 3.3, installed version: %s" % (
-        str(pexpect.__version__)))
-    print("  pexpect location: %s" % (str(pexpect.__file__)))
+    print("Could not import pexpect.replwrap: {0!s}".format((str(e))))
+    print("  Need pexpect version 3.3, installed version: {0!s}".format((
+        str(pexpect.__version__))))
+    print("  pexpect location: {0!s}".format((str(pexpect.__file__))))
     exit(1)
 
 try:
@@ -57,10 +57,10 @@ CONFIG_DIR = "/tmp/osquery-tests/"
 CONFIG_NAME = CONFIG_DIR + "tests"
 DEFAULT_CONFIG = {
     "options": {
-        "database_path": "%s.db" % CONFIG_NAME,
-        "pidfile": "%s.pid" % CONFIG_NAME,
-        "config_path": "%s.conf" % CONFIG_NAME,
-        "extensions_socket": "%s.em" % CONFIG_NAME,
+        "database_path": "{0!s}.db".format(CONFIG_NAME),
+        "pidfile": "{0!s}.pid".format(CONFIG_NAME),
+        "config_path": "{0!s}.conf".format(CONFIG_NAME),
+        "extensions_socket": "{0!s}.em".format(CONFIG_NAME),
         "extensions_interval": "1",
         "extensions_timeout": "0",
         "watchdog_level": "3",
@@ -100,7 +100,7 @@ class OsqueryWrapper(REPLWrapper):
         for option in args.keys():
             options[option] = args[option]
         options["database_path"] += str(random.randint(1000, 9999))
-        command = command + " " + " ".join(["--%s=%s" % (k, v) for
+        command = command + " " + " ".join(["--{0!s}={1!s}".format(k, v) for
             k, v in options.iteritems()])
         proc = pexpect.spawn(command, env=env)
         super(OsqueryWrapper, self).__init__(
@@ -123,7 +123,7 @@ class OsqueryWrapper(REPLWrapper):
 
         if len(result_lines) < 1:
             raise OsqueryUnknownException(
-                'Unexpected output:\n %s' % result_lines)
+                'Unexpected output:\n {0!s}'.format(result_lines))
         if result_lines[0].startswith(self.ERROR_PREFIX):
             raise OsqueryException(result_lines[0])
 
@@ -138,7 +138,7 @@ class OsqueryWrapper(REPLWrapper):
             return rows
         except:
             raise OsqueryUnknownException(
-                'Unexpected output:\n %s' % result_lines)
+                'Unexpected output:\n {0!s}'.format(result_lines))
 
 
 class ProcRunner(object):
@@ -171,7 +171,7 @@ class ProcRunner(object):
             pid = self.proc.pid
             self.started = True
         except Exception as e:
-            print (utils.red("Process start failed:") + " %s" % self.name)
+            print (utils.red("Process start failed:") + " {0!s}".format(self.name))
             print (str(e))
             sys.exit(1)
         try:
@@ -281,7 +281,7 @@ class ProcessGenerator(object):
         config["options"]["extensions_socket"] += str(random.randint(1000, 9999))
         for option in options.keys():
             config["options"][option] = options[option]
-        flags = ["--%s=%s" % (k, v) for k, v in config["options"].items()]
+        flags = ["--{0!s}={1!s}".format(k, v) for k, v in config["options"].items()]
         for option in options_only.keys():
             config["options"][option] = options_only[option]
         for key in overwrite:
@@ -305,10 +305,10 @@ class ProcessGenerator(object):
         extension = ProcRunner("extension",
             binary,
             [
-                "--socket=%s" % config["options"]["extensions_socket"],
+                "--socket={0!s}".format(config["options"]["extensions_socket"]),
                 "--verbose" if not silent else "",
-                "--timeout=%d" % timeout,
-                "--interval=%d" % 0,
+                "--timeout={0:d}".format(timeout),
+                "--interval={0:d}".format(0),
             ],
             silent=silent)
         self.generators.append(extension)
@@ -346,7 +346,7 @@ class EXClient:
             path = CONFIG["options"]["extensions_socket"]
         self.path = path
         if uuid:
-            self.path += ".%s" % str(uuid)
+            self.path += ".{0!s}".format(str(uuid))
         transport = TSocket.TSocket(unix_socket=self.path)
         transport = TTransport.TBufferedTransport(transport)
         self.protocol = TBinaryProtocol.TBinaryProtocol(transport)
@@ -439,7 +439,7 @@ class Tester(object):
         ARGS = parser.parse_args()
 
         if not os.path.exists(ARGS.build):
-            print ("Cannot find --build: %s" % ARGS.build)
+            print ("Cannot find --build: {0!s}".format(ARGS.build))
             print ("You must first run: make")
             exit(1)
 
@@ -472,7 +472,7 @@ def expect(functional, expected, interval=0.01, timeout=4):
             if len(result) == expected:
                 break
         except Exception as e:
-            print ("Expect exception (%s): %s not %s" % (
+            print ("Expect exception ({0!s}): {1!s} not {2!s}".format(
                 str(e), str(functional), expected))
             return None
         if delay >= timeout:
@@ -497,7 +497,7 @@ def assertPermissions():
     stat_info = os.stat('.')
     if stat_info.st_uid != os.getuid():
         print (utils.lightred("Will not load modules/extensions in tests."))
-        print (utils.lightred("Repository owner (%d) executer (%d) mismatch" % (
+        print (utils.lightred("Repository owner ({0:d}) executer ({1:d}) mismatch".format(
             stat_info.st_uid, os.getuid())))
         exit(1)
 
@@ -511,7 +511,7 @@ def loadThriftFromBuild(build_dir):
         from osquery import ExtensionManager, Extension
         EXClient.setUp(ExtensionManager, Extension)
     except ImportError as e:
-        print ("Cannot import osquery thrift API from %s" % (thrift_path))
-        print ("Exception: %s" % (str(e)))
+        print ("Cannot import osquery thrift API from {0!s}".format((thrift_path)))
+        print ("Exception: {0!s}".format((str(e))))
         print ("You must first run: make")
         exit(1)

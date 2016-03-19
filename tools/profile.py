@@ -54,8 +54,8 @@ def get_stats(p, interval=1):
 
 def check_leaks_linux(shell, query, count=1, supp_file=None):
     """Run valgrind using the shell and a query, parse leak reports."""
-    suppressions = "" if supp_file is None else "--suppressions=%s" % supp_file
-    cmd = "valgrind --tool=memcheck %s %s --iterations=%d --query=\"%s\"" % (
+    suppressions = "" if supp_file is None else "--suppressions={0!s}".format(supp_file)
+    cmd = "valgrind --tool=memcheck {0!s} {1!s} --iterations={2:d} --query=\"{3!s}\"".format(
         suppressions, shell, count, query)
     proc = subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -84,7 +84,7 @@ def check_leaks_darwin(shell, query, count=1):
     while proc.poll() is None:
         # Continue to run leaks until the monitored shell exits.
         leaks = subprocess.Popen(
-            ["leaks", "%s" % proc.pid],
+            ["leaks", "{0!s}".format(proc.pid)],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         stdout, _ = leaks.communicate()
@@ -110,7 +110,7 @@ def check_leaks(shell, query, count=1, supp_file=None):
 def profile_leaks(shell, queries, count=1, rounds=1, supp_file=None):
     report = {}
     for name, query in queries.iteritems():
-        print ("Analyzing leaks in query: %s" % query)
+        print ("Analyzing leaks in query: {0!s}".format(query))
         # Apply count (optionally run the query several times).
         summary = check_leaks(shell, query, count, supp_file)
         display = []
@@ -126,8 +126,8 @@ def profile_leaks(shell, queries, count=1, rounds=1, supp_file=None):
                     report[name] = "WARNING"
             else:
                 report[name] = "SAFE"
-            display.append("%s: %s" % (key, output))
-        print ("  %s" % "; ".join(display))
+            display.append("{0!s}: {1!s}".format(key, output))
+        print ("  {0!s}".format("; ".join(display)))
     return report
 
 
@@ -183,14 +183,14 @@ def run_query(shell, query, timeout=0, count=1):
 def summary_line(name, result):
     if not args.n:
         for key, v in result.iteritems():
-            print ("%s" % (
-                RANGES["colors"][v[0]]("%s:%s" % (
-                    key[0].upper(), v[0]))),
+            print ("{0!s}".format((
+                RANGES["colors"][v[0]]("{0!s}:{1!s}".format(
+                    key[0].upper(), v[0])))),
                 end="")
         print (" ", end="")
-    print ("%s:" % name, end=" ")
+    print ("{0!s}:".format(name), end=" ")
     for key, v in result.iteritems():
-        print ("%s: %s" % (key, v[1]), end=" ")
+        print ("{0!s}: {1!s}".format(key, v[1]), end=" ")
     print ("")
 
 
@@ -225,12 +225,12 @@ def summary(results, display=False):
 def profile(shell, queries, timeout=0, count=1, rounds=1):
     report = {}
     for name, query in queries.iteritems():
-        print ("Profiling query: %s" % query)
+        print ("Profiling query: {0!s}".format(query))
         results = {}
         for i in range(rounds):
             result = run_query(shell, query, timeout=timeout, count=count)
             summary(
-                {"%s (%d/%d)" % (name, i + 1, rounds): result}, display=True)
+                {"{0!s} ({1:d}/{2:d})".format(name, i + 1, rounds): result}, display=True)
             # Store each result round to return an average.
             for k, v in result.iteritems():
                 results[k] = results.get(k, [])
@@ -240,7 +240,7 @@ def profile(shell, queries, timeout=0, count=1, rounds=1):
             average_results[k] = sum(results[k]) / len(results[k])
         report[name] = average_results
         if rounds > 1:
-            summary({"%s   avg" % name: report[name]}, display=True)
+            summary({"{0!s}   avg".format(name): report[name]}, display=True)
     return report
 
 def compare(profile1, profile2):
@@ -260,7 +260,7 @@ def regress_check(profile1, profile2):
             continue
         for measure in profile1[table]:
             if profile2[table][measure][0] > profile1[table][measure][0]:
-                print ("%s %s has regressed (%s->%s)!" % (table, measure,
+                print ("{0!s} {1!s} has regressed ({2!s}->{3!s})!".format(table, measure,
                     profile1[table][measure][0], profile2[table][measure][0]))
                 regressed = True
     if not regressed:
@@ -315,8 +315,8 @@ if __name__ == "__main__":
         help="Run the profile for N rounds and use the average."
     )
     group.add_argument(
-        "--shell", metavar="PATH", default="./build/%s/osquery/run" % (
-            utils.platform()),
+        "--shell", metavar="PATH", default="./build/{0!s}/osquery/run".format((
+            utils.platform())),
         help="Path to osquery run wrapper (./build/<sys>/osquery/run)."
     )
 
@@ -354,16 +354,16 @@ if __name__ == "__main__":
             profile1 = json.loads(fh.read())
 
     if not os.path.exists(args.shell):
-        print ("Cannot find --daemon: %s" % (args.shell))
+        print ("Cannot find --daemon: {0!s}".format((args.shell)))
         exit(1)
     if args.config is None and not os.path.exists(args.tables):
-        print ("Cannot find --tables: %s" % (args.tables))
+        print ("Cannot find --tables: {0!s}".format((args.tables)))
         exit(1)
 
     queries = {}
     if args.config is not None:
         if not os.path.exists(args.config):
-            print ("Cannot find --config: %s" % (args.config))
+            print ("Cannot find --config: {0!s}".format((args.config)))
             exit(1)
         queries = utils.queries_from_config(args.config)
     elif args.query is not None:
@@ -394,4 +394,4 @@ if __name__ == "__main__":
                 fh.write(json.dumps(results, indent=1))
             else:
                 fh.write(json.dumps(summary(results), indent=1))
-        print ("Wrote output summary: %s" % args.output)
+        print ("Wrote output summary: {0!s}".format(args.output))

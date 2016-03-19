@@ -48,8 +48,8 @@ class ExampleQueryTests(test_base.ProcessGenerator, unittest.TestCase):
             self.assertEqual(result.status.code, 0)
             return result.response
         except Exception as e:
-            print("General exception executing query: %s" % (
-                utils.lightred(query)))
+            print("General exception executing query: {0!s}".format((
+                utils.lightred(query))))
             raise e
 
     def _execute_set(self, queries):
@@ -61,7 +61,7 @@ class ExampleQueryTests(test_base.ProcessGenerator, unittest.TestCase):
             if duration_ms > 2000:
                 # Query took longer than 2 seconds.
                 duration_ms = utils.lightred(duration_ms)
-            print("Query (%sms): %s, rows: %d" % (
+            print("Query ({0!s}ms): {1!s}, rows: {2:d}".format(
                 duration_ms, example, len(result)))
 
 

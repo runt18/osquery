@@ -60,7 +60,7 @@ def main(argc, argv):
         template_data = fh.read()
 
     for base, _, filenames in os.walk(os.path.join(directory,
-            "tables_%s" % (name))):
+            "tables_{0!s}".format((name)))):
         for filename in filenames:
             if filename == name:
                 continue
@@ -70,7 +70,7 @@ def main(argc, argv):
 
     amalgamation = jinja2.Template(template_data).render(
         tables=tables)
-    output = os.path.join(directory, "%s_amalgamation.cpp" % name)
+    output = os.path.join(directory, "{0!s}_amalgamation.cpp".format(name))
     try:
         os.makedirs(os.path.dirname(output))
     except:

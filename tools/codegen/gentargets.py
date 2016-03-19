@@ -88,13 +88,13 @@ if __name__ == "__main__":
             try:
                 json_data = json.loads(f.read())
             except ValueError:
-                logging.critical("Error: %s is not valid JSON" % args.input)
+                logging.critical("Error: {0!s} is not valid JSON".format(args.input))
 
             source_files = get_files_to_compile(json_data)
             print(TARGETS_PREAMBLE)
             for source_file in source_files:
-                print("    \"%s\"," % source_file)
+                print("    \"{0!s}\",".format(source_file))
             print(TARGETS_POSTSCRIPT % (args.version, args.sdk))
 
     except IOError:
-        logging.critical("Error: %s doesn't exist" % args.input)
+        logging.critical("Error: {0!s} doesn't exist".format(args.input))

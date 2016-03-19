@@ -26,7 +26,7 @@ class ModuleTests(test_base.ProcessGenerator, unittest.TestCase):
         self.binary = os.path.join(test_base.ARGS.build, "osquery", "osqueryi")
         ext = "dylib" if sys.platform == "darwin" else "so"
         self.modules_loader = test_base.Autoloader(
-            [test_base.ARGS.build + "/osquery/libmodexample.%s" % ext])
+            [test_base.ARGS.build + "/osquery/libmodexample.{0!s}".format(ext)])
         self.osqueryi = test_base.OsqueryWrapper(self.binary,
             {"modules_autoload": self.modules_loader.path})
 

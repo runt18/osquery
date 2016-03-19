@@ -75,14 +75,14 @@ class Encoder(json.JSONEncoder):
         if isinstance(o, NoIndent):
             key = uuid.uuid4().hex
             self._replacement_map[key] = json.dumps(o.value, **self.kwargs)
-            return "@@%s@@" % (key,)
+            return "@@{0!s}@@".format(key)
         else:
             return super(Encoder, self).default(o)
 
     def encode(self, o):
         result = super(Encoder, self).encode(o)
         for k, v in self._replacement_map.iteritems():
-            result = result.replace('"@@%s@@"' % (k,), v)
+            result = result.replace('"@@{0!s}@@"'.format(k), v)
         return result
 
 
@@ -128,10 +128,10 @@ def gen_diff(api_old_path, api_new_path):
     new_tables = {}
     for category in api_new["tables"]:
         for table in category["tables"]:
-            new_tables["%s:%s" % (category["name"], table["name"])] = table
+            new_tables["{0!s}:{1!s}".format(category["name"], table["name"])] = table
     for category in api_old["tables"]:
         for table in category["tables"]:
-            old_tables["%s:%s" % (category["name"], table["name"])] = table
+            old_tables["{0!s}:{1!s}".format(category["name"], table["name"])] = table
 
     # Iterate backwards then forward to detect added/removed.
     tables_added = []
@@ -145,7 +145,7 @@ def gen_diff(api_old_path, api_new_path):
         for column in table["columns"]:
             old_columns = [c["name"] for c in old_tables[name]["columns"]]
             if column["name"] not in old_columns:
-                columns_added.append("%s:%s:%s:%s" % (category["name"],
+                columns_added.append("{0!s}:{1!s}:{2!s}:{3!s}".format(category["name"],
                     table["name"], column["name"], column["type"]))
 
     for name, table in old_tables.iteritems():
@@ -155,25 +155,25 @@ def gen_diff(api_old_path, api_new_path):
         for column in table["columns"]:
             new_columns = [c["name"] for c in new_tables[name]["columns"]]
             if column["name"] not in new_columns:
-                columns_removed.append("%s:%s:%s:%s" % (category["name"],
+                columns_removed.append("{0!s}:{1!s}:{2!s}:{3!s}".format(category["name"],
                     table["name"], column["name"], column["type"]))
 
     # Sort then pretty print (md) the changes.
     tables_added.sort()
     for name in tables_added:
-        print ("Added table `%s` to %s" % tuple(name.split(":")[::-1]))
+        print ("Added table `{0!s}` to {1!s}".format(*tuple(name.split(":")[::-1])))
     columns_added.sort()
     for name in columns_added:
         column = name.split(":")
-        print ("Added column `%s` (`%s`) to table `%s`" % (column[2], column[3],
+        print ("Added column `{0!s}` (`{1!s}`) to table `{2!s}`".format(column[2], column[3],
             column[1]))
     tables_removed.sort()
     for name in tables_removed:
-        print ("Removed table `%s` from %s" % tuple(name.split(":")[::-1]))
+        print ("Removed table `{0!s}` from {1!s}".format(*tuple(name.split(":")[::-1])))
     columns_removed.sort()
     for name in columns_removed:
         column = name.split(":")
-        print ("Removed column `%s` (`%s`) from table `%s`" % (column[2],
+        print ("Removed column `{0!s}` (`{1!s}`) from table `{2!s}`".format(column[2],
             column[3], column[1]))
 
 
@@ -200,7 +200,7 @@ def gen_api(tables_path, profile={}):
             with open(os.path.join(base, spec_file), "rU") as fh:
                 tree = ast.parse(fh.read())
                 table_spec = gen_spec(tree)
-                table_profile = profile.get("%s.%s" % (platform, name), {})
+                table_profile = profile.get("{0!s}.{1!s}".format(platform, name), {})
                 table_spec["profile"] = NoIndent(table_profile)
                 table_spec["blacklisted"] = is_blacklisted(table_spec["name"],
                                                            blacklist=blacklist)
@@ -243,19 +243,19 @@ def main(argc, argv):
         exit(0)
 
     if not os.path.exists(args.tables):
-        logging.error("Cannot find path: %s" % (args.tables))
+        logging.error("Cannot find path: {0!s}".format((args.tables)))
         exit(1)
 
     profile = {}
     if args.profile is not None:
         if not os.path.exists(args.profile):
-            logging.error("Cannot find path: %s" % (args.profile))
+            logging.error("Cannot find path: {0!s}".format((args.profile)))
             exit(1)
         with open(args.profile, "r") as fh:
             try:
                 profile = json.loads(fh.read())
             except Exception as e:
-                logging.error("Cannot parse profile data: %s" % (str(e)))
+                logging.error("Cannot parse profile data: {0!s}".format((str(e))))
                 exit(2)
 
     # Read in the optional list of blacklisted tables, then generate categories.

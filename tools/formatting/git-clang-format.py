@@ -193,15 +193,15 @@ def interpret_args(args, dash_dash, default_commit):
     if len(args) == 0:
       commit = default_commit
     elif len(args) > 1:
-      die('at most one commit allowed; %d given' % len(args))
+      die('at most one commit allowed; {0:d} given'.format(len(args)))
     else:
       commit = args[0]
     object_type = get_object_type(commit)
     if object_type not in ('commit', 'tag'):
       if object_type is None:
-        die("'%s' is not a commit" % commit)
+        die("'{0!s}' is not a commit".format(commit))
       else:
-        die("'%s' is a %s, but a commit was expected" % (commit, object_type))
+        die("'{0!s}' is a {1!s}, but a commit was expected".format(commit, object_type))
     files = dash_dash[1:]
   elif args:
     if disambiguate_revision(args[0]):
@@ -226,8 +226,7 @@ def disambiguate_revision(value):
     return False
   if object_type in ('commit', 'tag'):
     return True
-  die('`%s` is a %s, but a commit or filename was expected' %
-      (value, object_type))
+  die('`{0!s}` is a {1!s}, but a commit or filename was expected'.format(value, object_type))
 
 
 def get_object_type(value):
@@ -326,7 +325,7 @@ def run_clang_format_and_save_to_tree(changed_lines, binary='clang-format',
       mode = oct(os.stat(filename).st_mode)
       blob_id = clang_format_to_blob(filename, line_ranges, binary=binary,
                                      style=style)
-      yield '%s %s\t%s' % (mode, blob_id, filename)
+      yield '{0!s} {1!s}\t{2!s}'.format(mode, blob_id, filename)
   return create_tree(index_info_generator(), '--index-info')
 
 
@@ -342,10 +341,10 @@ def create_tree(input_lines, mode):
   with temporary_index_file():
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     for line in input_lines:
-      p.stdin.write('%s\0' % line)
+      p.stdin.write('{0!s}\0'.format(line))
     p.stdin.close()
     if p.wait() != 0:
-      die('`%s` failed' % ' '.join(cmd))
+      die('`{0!s}` failed'.format(' '.join(cmd)))
     tree_id = run('git', 'write-tree')
     return tree_id
 
@@ -359,14 +358,14 @@ def clang_format_to_blob(filename, line_ranges, binary='clang-format',
   if style:
     clang_format_cmd.extend(['-style='+style])
   clang_format_cmd.extend([
-      '-lines=%s:%s' % (start_line, start_line+line_count-1)
+      '-lines={0!s}:{1!s}'.format(start_line, start_line+line_count-1)
       for start_line, line_count in line_ranges])
   try:
     clang_format = subprocess.Popen(clang_format_cmd, stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE)
   except OSError as e:
     if e.errno == errno.ENOENT:
-      die('cannot find executable "%s"' % binary)
+      die('cannot find executable "{0!s}"'.format(binary))
     else:
       raise
   clang_format.stdin.close()
@@ -376,9 +375,9 @@ def clang_format_to_blob(filename, line_ranges, binary='clang-format',
   clang_format.stdout.close()
   stdout = hash_object.communicate()[0]
   if hash_object.returncode != 0:
-    die('`%s` failed' % ' '.join(hash_object_cmd))
+    die('`{0!s}` failed'.format(' '.join(hash_object_cmd)))
   if clang_format.wait() != 0:
-    die('`%s` failed' % ' '.join(clang_format_cmd))
+    die('`{0!s}` failed'.format(' '.join(clang_format_cmd)))
   return stdout.rstrip('\r\n')
 
 
@@ -456,20 +455,20 @@ def run(*args, **kwargs):
   verbose = kwargs.pop('verbose', True)
   strip = kwargs.pop('strip', True)
   for name in kwargs:
-    raise TypeError("run() got an unexpected keyword argument '%s'" % name)
+    raise TypeError("run() got an unexpected keyword argument '{0!s}'".format(name))
   p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        stdin=subprocess.PIPE)
   stdout, stderr = p.communicate(input=stdin)
   if p.returncode == 0:
     if stderr:
       if verbose:
-        print >>sys.stderr, '`%s` printed to stderr:' % ' '.join(args)
+        print >>sys.stderr, '`{0!s}` printed to stderr:'.format(' '.join(args))
       print >>sys.stderr, stderr.rstrip()
     if strip:
       stdout = stdout.rstrip('\r\n')
     return stdout
   if verbose:
-    print >>sys.stderr, '`%s` returned %s' % (' '.join(args), p.returncode)
+    print >>sys.stderr, '`{0!s}` returned {1!s}'.format(' '.join(args), p.returncode)
   if stderr:
     print >>sys.stderr, stderr.rstrip()
   sys.exit(2)
