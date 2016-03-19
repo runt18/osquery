@@ -270,7 +270,7 @@ def description(text):
 
 
 def select_all(name=None):
-    if name == None:
+    if name is None:
         name = table.table_name
     return "select count(*) from %s;" % (name)
 
