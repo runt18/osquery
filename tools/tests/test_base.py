@@ -94,7 +94,11 @@ class OsqueryWrapper(REPLWrapper):
     CONTINUATION_PROMPT = u'    ...> '
     ERROR_PREFIX = 'Error:'
 
-    def __init__(self, command='../osqueryi', args={}, env={}):
+    def __init__(self, command='../osqueryi', args=None, env=None):
+        if args is None:
+            args = {}
+        if env is None:
+            env = {}
         global CONFIG_NAME, CONFIG
         options = copy.deepcopy(CONFIG)["options"]
         for option in args.keys():
@@ -147,7 +151,9 @@ class ProcRunner(object):
     The subprocess is opened in a new thread and state is tracked using
     this class wrapper.
     '''
-    def __init__(self, name, path, _args=[], interval=0.02, silent=False):
+    def __init__(self, name, path, _args=None, interval=0.02, silent=False):
+        if _args is None:
+            _args = []
         self.started = False
         self.proc = None
         self.name = name
@@ -272,9 +278,15 @@ class ProcessGenerator(object):
         shutil.rmtree(CONFIG_DIR)
         os.makedirs(CONFIG_DIR)
 
-    def _run_daemon(self, options={}, silent=False, options_only={},
-            overwrite={}):
+    def _run_daemon(self, options=None, silent=False, options_only=None,
+            overwrite=None):
         '''Spawn an osquery daemon process'''
+        if options is None:
+            options = {}
+        if options_only is None:
+            options_only = {}
+        if overwrite is None:
+            overwrite = {}
         global ARGS, CONFIG_NAME, CONFIG
         config = copy.deepcopy(CONFIG)
         config["options"]["database_path"] += str(random.randint(1000, 9999))
@@ -390,7 +402,9 @@ class EXClient:
 
 class Autoloader(object):
     '''Helper class to write a module or extension autoload file.'''
-    def __init__(self, autoloads=[]):
+    def __init__(self, autoloads=None):
+        if autoloads is None:
+            autoloads = []
         global CONFIG_DIR
         self.path = CONFIG_DIR + "ext.load" + str(random.randint(1000, 9999))
         with open(self.path, "w") as fh:
@@ -403,7 +417,9 @@ class Autoloader(object):
             pass
 
 class TimeoutRunner(object):
-    def __init__(self, cmd=[], timeout_sec=1):
+    def __init__(self, cmd=None, timeout_sec=1):
+        if cmd is None:
+            cmd = []
         self.stdout = None
         self.stderr = None
         self.proc = subprocess.Popen(" ".join(cmd),
