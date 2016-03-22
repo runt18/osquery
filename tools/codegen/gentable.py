@@ -66,7 +66,7 @@ APPLICATION = "APPLICATION"
 def usage():
     """ print program usage """
     print(
-        "Usage: %s <spec.table> <file.cpp> [disable_blacklist]" % sys.argv[0])
+        "Usage: {0!s} <spec.table> <file.cpp> [disable_blacklist]".format(sys.argv[0]))
 
 
 def to_camel_case(snake_case):
@@ -76,7 +76,7 @@ def to_camel_case(snake_case):
 
 
 def lightred(msg):
-    return "\033[1;31m %s \033[0m" % str(msg)
+    return "\033[1;31m {0!s} \033[0m".format(str(msg))
 
 
 def is_blacklisted(table_name, path=None, blacklist=None):
@@ -116,7 +116,7 @@ def setup_templates(templates_path):
     if not os.path.exists(templates_path):
         templates_path = os.path.join(os.path.dirname(tables_path), "templates")
         if not os.path.exists(templates_path):
-            print ("Cannot read templates path: %s" % (templates_path))
+            print ("Cannot read templates path: {0!s}".format((templates_path)))
             exit(1)
     for template in os.listdir(templates_path):
         template_name = template.split(".", 1)[0]
@@ -180,7 +180,7 @@ class TableState(Singleton):
         )
 
         if self.table_name == "" or self.function == "":
-            print (lightred("Invalid table spec: %s" % (path)))
+            print (lightred("Invalid table spec: {0!s}".format((path))))
             exit(1)
 
         # Check for reserved column names
@@ -195,20 +195,20 @@ class TableState(Singleton):
         for i in range(1, len(path_bits)):
             dir_path = ""
             for j in range(i):
-                dir_path += "%s/" % path_bits[j]
+                dir_path += "{0!s}/".format(path_bits[j])
             if not os.path.exists(dir_path):
                 try:
                     os.mkdir(dir_path)
                 except:
                     # May encounter a race when using a make jobserver.
                     pass
-        logging.debug("generating %s" % path)
+        logging.debug("generating {0!s}".format(path))
         with open(path, "w+") as file_h:
             file_h.write(self.impl_content)
 
     def blacklist(self, path):
-        print (lightred("Blacklisting generated %s" % path))
-        logging.debug("blacklisting %s" % path)
+        print (lightred("Blacklisting generated {0!s}".format(path)))
+        logging.debug("blacklisting {0!s}".format(path))
         self.generate(path, template="blacklist")
 
 table = TableState()
@@ -244,7 +244,7 @@ class ForeignKey(object):
 def table_name(name):
     """define the virtual table name"""
     logging.debug("- table_name")
-    logging.debug("  - called with: %s" % name)
+    logging.debug("  - called with: {0!s}".format(name))
     table.table_name = name
     table.description = ""
     table.attributes = {}
@@ -259,9 +259,9 @@ def schema(schema_list):
     logging.debug("- schema")
     for it in schema_list:
         if isinstance(it, Column):
-            logging.debug("  - column: %s (%s)" % (it.name, it.type))
+            logging.debug("  - column: {0!s} ({1!s})".format(it.name, it.type))
         if isinstance(it, ForeignKey):
-            logging.debug("  - foreign_key: %s (%s)" % (it.column, it.table))
+            logging.debug("  - foreign_key: {0!s} ({1!s})".format(it.column, it.table))
     table.schema = schema_list
 
 
@@ -272,7 +272,7 @@ def description(text):
 def select_all(name=None):
     if name is None:
         name = table.table_name
-    return "select count(*) from %s;" % (name)
+    return "select count(*) from {0!s};".format((name))
 
 
 def examples(example_queries):
@@ -298,10 +298,10 @@ def implementation(impl_string):
     class_parts = function.split("::")[::-1]
     function = class_parts[0]
     class_name = class_parts[1] if len(class_parts) > 1 else ""
-    impl = "%s.cpp" % filename
-    logging.debug("  - impl => %s" % impl)
-    logging.debug("  - function => %s" % function)
-    logging.debug("  - class_name => %s" % class_name)
+    impl = "{0!s}.cpp".format(filename)
+    logging.debug("  - impl => {0!s}".format(impl))
+    logging.debug("  - function => {0!s}".format(function))
+    logging.debug("  - class_name => {0!s}".format(class_name))
     table.impl = impl
     table.function = function
     table.class_name = class_name
@@ -314,12 +314,12 @@ def implementation(impl_string):
             if isinstance(column, Column):
                 columns[column.name] = column.type
         if "time" not in columns:
-            print(lightred("Event subscriber: %s needs a 'time' column." % (
-                table.table_name)))
+            print(lightred("Event subscriber: {0!s} needs a 'time' column.".format((
+                table.table_name))))
             sys.exit(1)
         if columns["time"] is not BIGINT:
             print(lightred(
-                "Event subscriber: %s, 'time' column must be a %s type" % (
+                "Event subscriber: {0!s}, 'time' column must be a {1!s} type".format(
                     table.table_name, BIGINT)))
             sys.exit(1)
 

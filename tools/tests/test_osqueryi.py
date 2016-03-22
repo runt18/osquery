@@ -26,7 +26,7 @@ class OsqueryiTest(unittest.TestCase):
     def setUp(self):
         self.binary = os.path.join(test_base.ARGS.build, "osquery", "osqueryi")
         self.osqueryi = test_base.OsqueryWrapper(self.binary)
-        self.dbpath = "%s%s" % (
+        self.dbpath = "{0!s}{1!s}".format(
             test_base.CONFIG["options"]["database_path"],
             str(random.randint(1000, 9999)))
 
@@ -41,8 +41,8 @@ class OsqueryiTest(unittest.TestCase):
         proc = test_base.TimeoutRunner([
                 self.binary,
                 "--config_check",
-                "--database_path=%s" % (self.dbpath),
-                "--config_path=%s/test.config" % test_base.SCRIPT_DIR
+                "--database_path={0!s}".format((self.dbpath)),
+                "--config_path={0!s}/test.config".format(test_base.SCRIPT_DIR)
             ],
             SHELL_TIMEOUT)
         self.assertEqual(proc.stdout, "")
@@ -55,7 +55,7 @@ class OsqueryiTest(unittest.TestCase):
         proc = test_base.TimeoutRunner([
             self.binary,
                 "--config_check",
-                "--database_path=%s" % (self.dbpath),
+                "--database_path={0!s}".format((self.dbpath)),
                 "--config_path=/this/path/does/not/exist"
             ],
             SHELL_TIMEOUT)
@@ -68,8 +68,8 @@ class OsqueryiTest(unittest.TestCase):
         proc = test_base.TimeoutRunner([
                 self.binary,
                 "--config_check",
-                "--database_path=%s" % (self.dbpath),
-                "--config_path=%s/test.badconfig" % test_base.SCRIPT_DIR
+                "--database_path={0!s}".format((self.dbpath)),
+                "--config_path={0!s}/test.badconfig".format(test_base.SCRIPT_DIR)
             ],
             SHELL_TIMEOUT)
         self.assertEqual(proc.proc.poll(), 1)
@@ -79,7 +79,7 @@ class OsqueryiTest(unittest.TestCase):
         proc = test_base.TimeoutRunner([
                 self.binary,
                 "--config_check",
-                "--database_path=%s" % (self.dbpath),
+                "--database_path={0!s}".format((self.dbpath)),
                 "--config_plugin=does_not_exist"
             ],
             SHELL_TIMEOUT)

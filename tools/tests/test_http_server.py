@@ -47,7 +47,7 @@ ENROLL_RESPONSE = {
 }
 
 def debug(response):
-    print("-- [DEBUG] %s" % str(response))
+    print("-- [DEBUG] {0!s}".format(str(response)))
 
 class RealSimpleHandler(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -56,20 +56,20 @@ class RealSimpleHandler(BaseHTTPRequestHandler):
         self.end_headers()
  
     def do_GET(self):
-        debug("RealSimpleHandler::get %s" % self.path)
+        debug("RealSimpleHandler::get {0!s}".format(self.path))
         self._set_headers()
         self._reply(TEST_RESPONSE)
  
     def do_HEAD(self):
-        debug("RealSimpleHandler::head %s" % self.path)
+        debug("RealSimpleHandler::head {0!s}".format(self.path))
         self._set_headers()
         
     def do_POST(self):
-        debug("RealSimpleHandler::post %s" % self.path)
+        debug("RealSimpleHandler::post {0!s}".format(self.path))
         self._set_headers()
         content_len = int(self.headers.getheader('content-length', 0))
         request = json.loads(self.rfile.read(content_len))
-        debug("Request: %s" % str(request))
+        debug("Request: {0!s}".format(str(request)))
 
         if self.path == '/enroll':
             self.enroll(request)
@@ -118,12 +118,11 @@ class RealSimpleHandler(BaseHTTPRequestHandler):
         self._reply({})
 
     def _reply(self, response):
-        debug("Replying: %s" % (str(response)))
+        debug("Replying: {0!s}".format((str(response))))
         self.wfile.write(json.dumps(response))
 
 def handler(signum, frame):
-    print("[DEBUG] Shutting down HTTP server via timeout (%d) seconds."
-        % (ARGS.timeout))
+    print("[DEBUG] Shutting down HTTP server via timeout ({0:d}) seconds.".format((ARGS.timeout)))
     sys.exit(0)
 
 if __name__ == '__main__':
@@ -185,7 +184,7 @@ if __name__ == '__main__':
             with open(ARGS.enroll_secret, "r") as fh:
                 ENROLL_SECRET = fh.read().strip()
         except IOError as e:
-            print("Cannot read --enroll_secret: %s" % str(e))
+            print("Cannot read --enroll_secret: {0!s}".format(str(e)))
             exit(1)
 
     if not ARGS.persist:
@@ -207,7 +206,7 @@ if __name__ == '__main__':
                 certfile=ARGS.cert,
                 keyfile=ARGS.key,
                 server_side=True)
-        debug("Starting TLS/HTTPS server on TCP port: %d" % ARGS.port)
+        debug("Starting TLS/HTTPS server on TCP port: {0:d}".format(ARGS.port))
     else:
-        debug("Starting HTTP server on TCP port: %d" % ARGS.port)
+        debug("Starting HTTP server on TCP port: {0:d}".format(ARGS.port))
     httpd.serve_forever()

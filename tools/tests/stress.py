@@ -37,10 +37,10 @@ def stress(args):
         if proc.returncode is not 0:
             print (stdout)
             print (stderr)
-            print ("%s Test %d failed. (total %6.4fs)" % (
+            print ("{0!s} Test {1:d} failed. (total {2:6.4f}s)".format(
                 red("FAILED"), i + 1, sum(times)))
             return proc.returncode
-        print ("%s Tests passed (%d/%d) rounds. (average %6.4fs) " % (
+        print ("{0!s} Tests passed ({1:d}/{2:d}) rounds. (average {3:6.4f}s) ".format(
             green("PASSED"), i + 1, args["num"], sum(times) / len(times)))
     return 0
 
